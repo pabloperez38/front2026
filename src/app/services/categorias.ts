@@ -1,4 +1,3 @@
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,13 +9,23 @@ export interface Categoria {
   estado: number;
 }
 
+export interface NuevaCategoria {
+  nombre: string;
+  descripcion: string;
+}
+
 interface RespuestaCategorias {
   message: string;
   categorias: Categoria[];
 }
 
+interface RespuestaCategoria {
+  message: string;
+  categoria: Categoria;
+}
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoriasService {
   private http = inject(HttpClient);
@@ -25,5 +34,9 @@ export class CategoriasService {
 
   obtenerCategorias(): Observable<RespuestaCategorias> {
     return this.http.get<RespuestaCategorias>(this.apiUrl);
+  }
+
+  crearCategoria(datos: NuevaCategoria): Observable<RespuestaCategoria> {
+    return this.http.post<RespuestaCategoria>(this.apiUrl, datos);
   }
 }
