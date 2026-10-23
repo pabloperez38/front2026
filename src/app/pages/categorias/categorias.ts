@@ -10,6 +10,22 @@ import { CategoriasService, Categoria, NuevaCategoria } from '../../services/cat
   styleUrl: './categorias.css',
 })
 export class Categorias implements OnInit {
+  modalAbierto = signal(false);
+
+  abrirModal(): void {
+    this.error.set('');
+    this.mensaje.set('');
+    this.modalAbierto.set(true);
+  }
+
+  cerrarModal(): void {
+    if (this.guardando()) {
+      return;
+    }
+
+    this.modalAbierto.set(false);
+  }
+
   private categoriasService = inject(CategoriasService);
 
   categorias = signal<Categoria[]>([]);
@@ -50,7 +66,7 @@ export class Categorias implements OnInit {
 
     const datos: NuevaCategoria = {
       nombre: this.nombre.trim(),
-      descripcion: this.descripcion.trim(),    
+      descripcion: this.descripcion.trim(),
     };
 
     if (datos.nombre.length < 2) {
@@ -65,9 +81,11 @@ export class Categorias implements OnInit {
         this.mensaje.set(respuesta.message);
 
         this.nombre = '';
-        this.descripcion = '';     
+        this.descripcion = '';
 
         this.guardando.set(false);
+        this.modalAbierto.set(false);
+
         this.cargarCategorias();
       },
       error: (err) => {
