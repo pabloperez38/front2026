@@ -7,6 +7,7 @@ export interface Categoria {
   nombre: string;
   descripcion: string | null;
   estado: number;
+  deleted_at?: string | null;
 }
 
 export interface NuevaCategoria {
@@ -43,5 +44,17 @@ export class CategoriasService {
 
   actualizarCategoria(id: number, datos: NuevaCategoria): Observable<RespuestaCategoria> {
     return this.http.put<RespuestaCategoria>(`${this.apiUrl}/${id}`, datos);
+  }
+
+  eliminarCategoria(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+  }
+
+  obtenerCategoriasEliminadas(): Observable<RespuestaCategorias> {
+    return this.http.get<RespuestaCategorias>(`${this.apiUrl}/eliminadas`);
+  }
+
+  restaurarCategoria(id: number): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.apiUrl}/${id}/restore`, {});
   }
 }

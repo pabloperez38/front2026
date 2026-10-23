@@ -39,11 +39,15 @@ export class Categorias implements OnInit {
 
     this.modalAbierto.set(false);
     this.categoriaEditando.set(null);
+    this.estadoCategoria = 1;
+    this.nombre = '';
+    this.descripcion = '';
   }
 
   private categoriasService = inject(CategoriasService);
 
   categorias = signal<Categoria[]>([]);
+  categoriasEliminadas = signal<Categoria[]>([]);
   cargando = signal(true);
   error = signal('');
 
@@ -56,6 +60,7 @@ export class Categorias implements OnInit {
 
   ngOnInit(): void {
     this.cargarCategorias();
+    this.cargarCategoriasEliminadas();
   }
 
   cargarCategorias(): void {
@@ -64,13 +69,49 @@ export class Categorias implements OnInit {
 
     this.categoriasService.obtenerCategorias().subscribe({
       next: (respuesta) => {
-        this.categorias.set(respuesta.categorias);
+        this.categorias.set([...respuesta.categorias].sort((a, b) => b.id - a.id));
         this.cargando.set(false);
       },
       error: (err) => {
         console.error('Error al obtener categorías:', err);
         this.error.set('No se pudieron cargar las categorías.');
         this.cargando.set(false);
+      },
+    });
+  }
+
+  cargarCategoriasEliminadas(): void {
+    this.categoriasService.obtenerCategoriasEliminadas().subscribe({
+      next: (respuesta) => {
+        console.log('Categorías eliminadas recibidas:', respuesta);
+        this.categoriasEliminadas.set(respuesta.categorias);
+      },
+      error: (err) => {
+        console.error('Error al cargar categorías eliminadas:', err);
+        this.categoriasEliminadas.set([]);
+      },
+    });
+  }
+
+  restaurarCategoria(categoria: Categoria): void {
+    const confirmar = confirm(`¿Querés restaurar la categoría "${categoria.nombre}"?`);
+
+    if (!confirmar) {
+      return;
+    }
+
+    this.categoriasService.restaurarCategoria(categoria.id).subscribe({
+      next: (respuesta) => {
+        this.mensaje.set(respuesta.message);
+
+        // Actualizar la lista de categorías activas.
+        this.cargarCategorias();
+
+        // Actualizar la lista de categorías eliminadas.
+        this.cargarCategoriasEliminadas();
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'No se pudo restaurar la categoría.');
       },
     });
   }
@@ -98,8 +139,6 @@ export class Categorias implements OnInit {
       id === null
         ? this.categoriasService.crearCategoria(datos)
         : this.categoriasService.actualizarCategoria(id, datos);
-
-    this.guardando.set(true);
 
     solicitud.subscribe({
       next: (respuesta) => {
@@ -133,4 +172,25 @@ export class Categorias implements OnInit {
   }
 
   categoriaEditando = signal<number | null>(null);
+
+  eliminarCategoria(categoria: Categoria): void {
+    const confirmar = confirm(`¿Querés eliminar la categoría "${categoria.nombre}"?`);
+
+    if (!confirmar) {
+      return;
+    }
+
+    this.categoriasService.eliminarCategoria(categoria.id).subscribe({
+      next: (respuesta) => {
+        this.mensaje.set(respuesta.message);
+
+        // Actualizar ambas tablas
+        this.cargarCategorias();
+        this.cargarCategoriasEliminadas();
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'No se pudo eliminar la categoría.');
+      },
+    });
+  }
 }
