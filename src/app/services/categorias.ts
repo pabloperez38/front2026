@@ -5,13 +5,14 @@ import { Observable } from 'rxjs';
 export interface Categoria {
   id: number;
   nombre: string;
-  descripcion: string;
+  descripcion: string | null;
   estado: number;
 }
 
 export interface NuevaCategoria {
   nombre: string;
   descripcion: string;
+  estado?: number;
 }
 
 interface RespuestaCategorias {
@@ -38,5 +39,9 @@ export class CategoriasService {
 
   crearCategoria(datos: NuevaCategoria): Observable<RespuestaCategoria> {
     return this.http.post<RespuestaCategoria>(this.apiUrl, datos);
+  }
+
+  actualizarCategoria(id: number, datos: NuevaCategoria): Observable<RespuestaCategoria> {
+    return this.http.put<RespuestaCategoria>(`${this.apiUrl}/${id}`, datos);
   }
 }
