@@ -1,27 +1,21 @@
-
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-
-    <a class="navbar-brand" routerLink="/inicio">
-      Mi Aplicación
-    </a>
+    <a class="navbar-brand" routerLink="/inicio"> Mi Aplicación </a>
 
     <div class="navbar-nav ms-auto">
       <a
         class="nav-link"
         routerLink="/inicio"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }">
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
         Inicio
       </a>
 
-      <a
-        class="nav-link"
-        routerLink="/categorias"
-        routerLinkActive="active">
-        Categorías
-      </a>
+      <a class="nav-link" routerLink="/categorias" routerLinkActive="active"> Categorías </a>
+      @if (authService.estaAutenticado()) {
+        <button class="btn btn-info" type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+      }
     </div>
-
   </div>
 </nav>
